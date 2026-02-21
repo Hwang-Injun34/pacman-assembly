@@ -19,6 +19,9 @@ input_char resb 1
 section .text 
 
 read_input:
+    ; --------------------
+    ;   입력 받기
+    ; --------------------
     mov rax, SYS_read 
     mov rdi, STDIN          ; standard input
     mov rsi, input_char 
