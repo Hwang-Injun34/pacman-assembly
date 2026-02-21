@@ -9,49 +9,52 @@
 ; 작성자    :   남궁명수
 ; ============================
 
+global map_data 
+global map_width 
+global map_height 
+global print_map 
+
 section .data 
+; --------------------
+;   상수 정의
+; --------------------
 LF equ 10       ; line feed 
 NULL equ 0     ; end of string
 
 STDOUT equ 1    ; standard output 
-STDERR equ 2    ; standard error 
-
 SYS_write equ 1 ; write 
-SYS_exit equ 60 ; terminate
 
-clear_screen db 0x1B, '[', 'H', 0x1B, '[', 'J'  ; (커서 이동 + 화면 클리어)
-clear_len equ $ - clear_screen
+; --------------------
+;   맵 정의
+; --------------------
+map_data db \
+"##########", LF, \
+"#        #", LF, \
+"#  ####  #", LF, \
+"#        #", LF, \
+"#  ####  #", LF, \
+"#        #", LF, \
+"##########", LF
 
-map db "##########", LF 
-    db "#        #", LF 
-    db "#   p    #", LF 
-    db "#        #", LF 
-    db "##########", LF 
+map_size equ $ - map_data
 
-map_len equ $ - map 
+; --------------------
+;   맵 길이(계산할 때 필요)
+; --------------------
+map_width db 10 
+map_height db 7
 
 section .text 
-global _start
 
-_start: 
-
-    ; 화면 클리어
-    mov rax, SYS_write 
-    mov rdi, STDOUT 
-    mov rsi, clear_screen   ; 주소
-    mov rdx, clear_len      ; 길이
-    syscall 
-
-    ; 맵 출력
+print_map:
+    ; --------------------
+    ;   맵 출력
+    ; --------------------
     mov rax, SYS_write
     mov rdi, STDOUT 
-    mov rsi, map            ; 주소
-    mov rdx, map_len        ; 길이
+    mov rsi, map_data            ; 주소
+    mov rdx, map_size        ; 길이
     syscall 
-
-    ; 종료 
-    mov rax, SYS_exit
-    xor rdi, rdi            ; exit code 0 
-    syscall 
+    ret
 
 
