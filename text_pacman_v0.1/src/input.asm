@@ -11,7 +11,7 @@ global input_char
 
 section .data 
 STDIN equ 0 
-SYS_read 0 
+SYS_read equ 0 
 
 section .bss 
 input_char resb 1 

@@ -11,5 +11,5 @@ global player_y
 global player_x 
 
 section .data 
-player db 1
-palyer db 1
+player_y db 1
+player_x db 1

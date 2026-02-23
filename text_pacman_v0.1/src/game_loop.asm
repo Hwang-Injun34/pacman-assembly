@@ -15,10 +15,10 @@ extern input_char
 extern player_x 
 extern player_y
 
-secion .data 
-clear_screen db 0x1B, 27, '[', '2', 'J', 27, '[', 'H' ; 화면 클리어, 커서 이동
+section .data 
+clear_screen db 27, '[', '2', 'J', 27, '[', 'H'
 ; clear_screen db 0x1B, '[', 'H', 0x1B, '[', 'J'  
-clear_len equ $ - clear_len
+clear_len equ $ - clear_screen
 
 LF equ 10 
 STDIN equ 0 
@@ -35,11 +35,12 @@ section .bss
 
 section .text 
 _start: 
+game_loop:
     ; --------------------
     ;   화면 클리어
     ; --------------------
-    mov rax, STDOUT 
-    mov rdi, SYS_write 
+    mov rax, SYS_write 
+    mov rdi, STDOUT
     mov rsi, clear_screen 
     mov rdx, clear_len
     syscall 
@@ -68,22 +69,24 @@ _start:
     cmp al, 'd' 
     je move_right
 
-    cml al, 'a' 
+    cmp al, 'a' 
     je move_left 
+    
+    jmp game_loop
 
 
 move_up: 
-    dec byte[player_y]
+    dec byte [player_y]
     jmp game_loop
 
-mov_dwon:
-    inc byte[player_y]
+move_down:
+    inc byte [player_y]
     jmp game_loop
 
-mov_right: 
-    inc byte[player_x]
-jmp game_loop
+move_right: 
+    inc byte [player_x]
+    jmp game_loop
 
-mov_left:
-    dec byte[player_x]
+move_left:
+    dec byte [player_x]
     jmp game_loop
