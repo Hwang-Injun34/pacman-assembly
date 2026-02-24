@@ -2,13 +2,17 @@
 ; 파일명    : game_loop.asm
 ; 목적      : 메인 루프, 시작점
 ; 설명      : 
-;   - 게임 시작 -> 화면 클리어 -> 플레이어 삽입 -> 맵 출력 -> 입력 처리 -> 이동 처리
-;   - ANSI Escape Code 사용 
-;   - 플레이어, 고스트, 아이템 위치 표시 (나중)
+;   - Raw Mode 활성화
+;   - 화면 클리어
+;   - 플레이어 삽입
+;   - 맵 출력
+;   - 입력 처리
+;   - 이동 처리 + 벽 충돌
+;   - q 누르면 정상 종료
 ; 시작일    : 2026-02-22
 ; 작성자    :   남궁명수
 ; ============================
-global _start 
+global main 
 extern draw_map
 extern map_data
 extern map_width
@@ -18,6 +22,8 @@ extern read_input
 extern input_char
 extern player_x 
 extern player_y
+extern enable_raw_mode 
+extern disable_raw_mode
 
 section .data 
 clear_screen db 27, '[', '2', 'J', 27, '[', 'H'
@@ -27,29 +33,29 @@ clear_len equ $ - clear_screen
 LF equ 10 
 STDIN equ 0 
 STDOUT equ 1 
-STDERR equ 2 
 
 SYS_read equ 0 	     ; read 
 SYS_write equ 1 	; write 
 SYS_exit equ 60 	; terminate 
-SYS_create equ 85	; file open/create 
-SYS_time equ 201	; get time 
-
-section .bss 
 
 section .text 
-; --------------------
+; ====================
 ;   플레이어 위치 계산
-; --------------------
+;   rax = y 
+;   rbx = x 
+;   반환: rax = index 
+; ====================
 calc_index:
     mov rcx, qword [map_width]
-    inc rcx
+    inc rcx     ; LF 포함
     imul rax, rcx 
     add rax, rbx 
     ret 
 
 
-_start: 
+main: 
+    call enable_raw_mode
+
 game_loop:
     ; --------------------
     ;   화면 클리어
@@ -66,8 +72,7 @@ game_loop:
     mov rax, qword [player_y]
     mov rbx, qword [player_x]
     call calc_index 
-    mov r10, rax 
-    mov byte[map_data + r10], 'P'
+    mov byte[map_data + rax], 'P'
     
     ; --------------------
     ;   맵 출력
@@ -75,21 +80,27 @@ game_loop:
     call draw_map 
 
     ; --------------------
-    ;   입력 처리
+    ;   입력 읽기
     ; --------------------
     call read_input 
-    mov al, byte [input_char]   ; 연산전에 비트 확장 필수 
-    or al, 0x20
-    mov r11b, al 
-    cmp r11b, 10 
-    je game_loop
 
-    ; 임시 좌표로 이동 계산 
+    mov al, byte [input_char] 
+    or al, 0x20     ; 대문자 -> 소문자 변환
+    mov r11b, al 
+
+    ; q 누르면 종료
+    cmp r11b, 'q' 
+    je exit_program
+
+
+    ; --------------------
+    ;   이동 계산용 현재 좌표 복사
+    ; --------------------
     mov rax, qword [player_y]
     mov rbx, qword [player_x]
     
     ; --------------------
-    ;   이동 처리(W, A, S, D)
+    ;   방향 판별 (W, A, S, D)
     ; --------------------
     cmp r11b, 'w' 
     je try_up
@@ -106,9 +117,9 @@ game_loop:
     jmp game_loop
 
 
-; --------------------
-;   W, A, S, D 이동 함수
-; --------------------
+; ====================
+;   이동 시도
+; ====================
 try_up: 
     cmp rax, 0 
     je game_loop 
@@ -139,17 +150,20 @@ try_left:
     jmp try_move 
 
 
-; --------------------
-;   이동 가능한지 체크 하는 함수
-; --------------------
+; ====================
+;   벽 충돌 검사
+;   rax = new_y 
+;   rbx = new_x
+; ====================
 try_move:
-    ;rax = new_y
-    ;rbx = new_x
-
+    ; new 좌표 백업
     push rax  
     push rbx   
 
+    ; index 계산
     call calc_index 
+
+    ; 벽 검사
     mov dl, [map_data + rax]
     cmp dl, '#'
     je cancel_move 
@@ -170,12 +184,24 @@ try_move:
     ; 이동 확정
     mov qword [player_y], rax
     mov qword [player_x], rbx
+
     jmp game_loop
 
-; --------------------
+
+; ====================
 ;   이동 취소
-; --------------------
+; ====================
 cancel_move:
     pop rbx 
     pop rax 
     jmp game_loop
+
+; ====================
+;   정상 종료
+; ====================
+exit_program:
+    call disable_raw_mode
+    
+    mov rax, SYS_exit 
+    xor rdi, rdi  ; 이거 왜 해주는지 아직 모름, 문서 확인하기
+    syscall 
