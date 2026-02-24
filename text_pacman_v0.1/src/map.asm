@@ -10,7 +10,7 @@
 global map_data 
 global map_width 
 global map_height 
-global print_map 
+global draw_map 
 
 section .data 
 ; --------------------
@@ -37,20 +37,20 @@ map_data db \
 map_size equ $ - map_data
 
 ; --------------------
-;   맵 길이(계산할 때 필요)
+;   맵 길이
 ; --------------------
-map_width db 10 
-map_height db 7
+map_width dq 10 
+map_height dq 7
 
 section .text 
 
-print_map:
+draw_map:
     ; --------------------
     ;   맵 출력
     ; --------------------
     mov rax, SYS_write
     mov rdi, STDOUT 
     mov rsi, map_data            ; 주소
-    mov rdx, map_size        ; 길이
+    mov rdx, map_size            ; 길이
     syscall 
     ret
