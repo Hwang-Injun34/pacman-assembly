@@ -74,9 +74,6 @@ game_loop:
     ; --------------------
     call draw_map 
 
-    ; 이전 위치를 공백으로 표시
-    mov byte[map_data + r10], ' ' ; 만약 벽일 시 아무 수행 안하는거 추가해야함
-
     ; --------------------
     ;   입력 처리
     ; --------------------
@@ -84,6 +81,8 @@ game_loop:
     mov al, byte [input_char]   ; 연산전에 비트 확장 필수 
     or al, 0x20
     mov r11b, al 
+    cmp r11b, 10 
+    je game_loop
 
     ; 임시 좌표로 이동 계산 
     mov rax, qword [player_y]
@@ -95,13 +94,13 @@ game_loop:
     cmp r11b, 'w' 
     je try_up
 
-    cmp al, 's' 
+    cmp r11b, 's' 
     je try_down
 
-    cmp al, 'd' 
+    cmp r11b, 'd' 
     je try_right
 
-    cmp al, 'a' 
+    cmp r11b, 'a' 
     je try_left 
     
     jmp game_loop
@@ -144,15 +143,27 @@ try_left:
 ;   이동 가능한지 체크 하는 함수
 ; --------------------
 try_move:
-    ; 벽 검사
-    push rax    ; player_y
-    push rbx    ; player_x
+    ;rax = new_y
+    ;rbx = new_x
+
+    push rax  
+    push rbx   
 
     call calc_index 
     mov dl, [map_data + rax]
     cmp dl, '#'
     je cancel_move 
 
+    ; --------------------
+    ;   이동 성공
+    ; --------------------
+    ; 기존 위치 삭제
+    mov rax, [player_y]
+    mov rbx, [player_x]
+    call calc_index
+    mov byte [map_data + rax], ' '
+
+    ; 새 좌표 복원
     pop rbx 
     pop rax 
 
