@@ -26,9 +26,11 @@ extern enable_raw_mode
 extern disable_raw_mode
 
 section .data 
-clear_screen db 27, '[', '2', 'J', 27, '[', 'H'
+; clear_screen db 27, '[', '2', 'J', 27, '[', 'H'
 ; clear_screen db 0x1B, '[', 'H', 0x1B, '[', 'J'  
-clear_len equ $ - clear_screen
+; clear_len equ $ - clear_screen
+cursor_home db 27, '[', 'H' 
+cursor_len equ $ - cursor_home
 
 LF equ 10 
 STDIN equ 0 
@@ -62,8 +64,8 @@ game_loop:
     ; --------------------
     mov rax, SYS_write 
     mov rdi, STDOUT
-    mov rsi, clear_screen 
-    mov rdx, clear_len
+    mov rsi, cursor_home
+    mov rdx, cursor_len
     syscall 
     
     ; --------------------
