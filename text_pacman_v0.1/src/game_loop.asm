@@ -31,6 +31,10 @@ section .data
 clear_screen db 27, '[', '2', 'J', 27, '[', 'H'
 clear_len equ $ - clear_screen
 
+hide_cursor db 27, '[', '?', '2', '5', 'l'
+show_cursor db 27, '[', '?', '2', '5', 'h'
+cursor_ctl_len equ 6
+
 STDOUT equ 1 
 SYS_write equ 1 	; write 
 SYS_exit equ 60 	; terminate 
@@ -38,6 +42,15 @@ SYS_exit equ 60 	; terminate
 section .text 
 main: 
     call enable_raw_mode
+
+    ; --------------------
+    ;   커서 숨기기
+    ; --------------------
+    mov rax, SYS_write 
+    mov rdi, STDOUT 
+    mov rsi, hide_cursor 
+    mov rdx, cursor_ctl_len
+    syscall 
     
     ; --------------------
     ;   화면 클리어
@@ -91,6 +104,15 @@ game_loop:
 ; ====================   
 exit_program:
     call disable_raw_mode
+
+    ; --------------------
+    ;  커서 다시 보이기
+    ; --------------------
+    mov rax, SYS_write 
+    mov rdi, STDOUT 
+    mov rsi, show_cursor 
+    mov rdx, cursor_ctl_len
+    syscall 
 
     mov rax, SYS_exit 
     xor rdi, rdi 
