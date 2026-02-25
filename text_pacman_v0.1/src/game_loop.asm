@@ -70,16 +70,15 @@ game_loop:
 
     mov al, byte [input_char] 
     or al, 0x20     ; 대문자 -> 소문자 변환
-    mov r11b, al 
 
     ; q 누르면 종료
-    cmp r11b, 'q' 
+    cmp al, 'q' 
     je exit_program
 
     ; 플레이어 지우기 
     call erase_player 
 
-    ; 이동 처리(현재 오른쪽만)
+    ; 이동 처리
     call update_player 
 
     ; 다시 그리기

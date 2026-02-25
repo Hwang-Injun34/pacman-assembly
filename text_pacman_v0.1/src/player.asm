@@ -13,6 +13,11 @@ global update_player
 global player_x 
 global player_y
 
+extern input_char 
+extern map_data 
+extern map_width 
+extern map_height
+
 section .data 
 player_char db 'P'
 space_char db ' '
@@ -23,7 +28,6 @@ player_y db 2
 
 STDOUT equ 1 
 SYS_write equ 1 	; write 
-
 CURSOR_LEN equ 6    ; ESC[y;xH
 
 section .bss
@@ -41,12 +45,14 @@ move_cursor:
     mov byte [cursor_buf+1], '[' 
     
     ; y 반환
+    inc dil
     add dil, '0' 
     mov [cursor_buf+2], dil 
 
     mov byte [cursor_buf+3], ';'
 
-    ;x 반환 
+    ;x 반환
+    inc sil
     add sil, '0' 
     mov [cursor_buf+4], sil 
 
@@ -57,7 +63,6 @@ move_cursor:
     lea rsi, [cursor_buf] 
     mov rdx, CURSOR_LEN
     syscall 
-
     ret 
 
 
@@ -96,10 +101,101 @@ erase_player:
     ret 
 
 ; ====================
+;   calc_index : 플레이어 위치 계산
+;   rax = y 
+;   rbx = x 
+; ==================
+calc_index:
+    mov rcx, qword [map_width]
+    inc rcx 
+    imul rax, rcx 
+    add rax, rbx 
+    ret 
+
+; ====================
 ;   update_player
-;   임시: 오른쪽 이동 테스트
+;   w, a, s, d
 ; ====================
 update_player:
-    inc byte [player_x]
+
+    ; 현재 좌표 
+    movzx rax, byte [player_y]
+    movzx rbx, byte [player_x]
+
+    ; 입력 읽기
+    mov cl, [input_char]
+    or cl, 0x20
+
+    cmp cl, 'w' 
+    je try_up 
+
+    cmp cl, 's' 
+    je try_down 
+
+    cmp cl, 'a' 
+    je try_left 
+
+    cmp cl, 'd' 
+    je try_right 
     ret 
+
+try_up: 
+    cmp rax, 0 
+    je done 
+    dec rax 
+    jmp check_wall 
+
+try_down:
+    mov rcx, qword [map_height]
+    dec rcx 
+    cmp rax, rcx 
+    je done 
+    inc rax 
+    jmp check_wall 
+
+try_left: 
+    cmp rbx, 0
+    je done 
+    dec rbx 
+    jmp check_wall 
+
+try_right:
+    mov rcx, qword [map_width]
+    dec rcx 
+    cmp rbx, rcx 
+    je done 
+    inc rbx 
+    jmp check_wall
+
+; ====================
+;   check_wall : 벽 검사
+; ====================
+check_wall:
+    push rax 
+    push rbx 
+
+    call calc_index 
+    mov dl, [map_data + rax] 
+    cmp dl, '#' 
+    je cancel_move
+
+    pop rbx 
+    pop rax 
     
+    mov [player_y], al 
+    mov [player_x], bl 
+    ret 
+
+
+; ====================
+;   이동 취소
+; ====================
+cancel_move: 
+    pop rbx 
+    pop rax 
+
+; ====================
+;   종료
+; ====================
+done: 
+    ret
