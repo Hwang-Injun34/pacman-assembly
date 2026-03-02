@@ -12,6 +12,7 @@ global erase_player
 global update_player 
 global player_x 
 global player_y
+global score
 
 extern input_char 
 extern map_data 
@@ -21,6 +22,7 @@ extern map_height
 section .data 
 player_char db 'P'
 space_char db ' '
+score dq 0
 
 ; 좌표는 0~9 가정(한 자리 숫자)
 player_x db 2
@@ -176,8 +178,30 @@ check_wall:
 
     call calc_index 
     mov dl, [map_data + rax] 
+
+    ; ---- 벽 체크 ---- 
     cmp dl, '#' 
     je cancel_move
+
+    ; ---- 점 먹기 ----
+    cmp dl, '.'
+    jne .no_dot 
+
+    ; 점을 공백으로 변경
+    mov byte [map_data+rax], ' '
+
+    ; 점수 증가
+    inc qword [score]
+
+
+    .no_dot:
+        pop rbx 
+        pop rax 
+
+        mov [player_y], al 
+        mov [player_x], bl 
+
+        ret 
 
     pop rbx 
     pop rax 
