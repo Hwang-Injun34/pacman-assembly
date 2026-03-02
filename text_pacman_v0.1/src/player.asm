@@ -14,11 +14,15 @@ global update_player
 global player_x 
 global player_y
 global score
+global total_dots
+global check_win 
+global init_dot_count
 
 extern input_char 
 extern map_data 
 extern map_width 
 extern map_height
+extern map_size 
 
 section .data 
 player_char db 'P'
@@ -33,12 +37,18 @@ STDOUT equ 1
 SYS_write equ 1 	; write 
 CURSOR_LEN equ 6    ; ESC[y;xH
 
+
+; 점수 출력
 score_label db "SCORE: " 
 score_label_len equ $ - score_label
 
+; 승리 조건
+total_dots dq 0 
+
+
 section .bss
-cursor_buf resb 16
-score_buf resb 32
+cursor_buf resb 16      ; ANSI 사용을 위한 버퍼
+score_buf resb 32       ; 문자열 출력을 위한 버퍼 
 
 section .text 
 
@@ -49,6 +59,7 @@ draw_score:
     ; 맵의 맨 아래로 커서 이동 
     ; y = map_height + 1
     mov rax, [map_height]
+    inc rax
     mov rdi, rax 
     mov rsi, 0 
     call move_cursor 
@@ -248,6 +259,8 @@ check_wall:
     ; 점수 증가
     inc qword [score]
 
+    ; Total dot 감소
+    dec qword [total_dots]
 
     .no_dot:
         pop rbx 
@@ -278,3 +291,47 @@ cancel_move:
 ; ====================
 done: 
     ret
+
+
+; ====================
+;   init_dot_count : 점 세기 
+; ====================
+init_dot_count: 
+    mov rcx, map_size
+    lea rsi, [map_data]
+    xor rax, rax 
+
+    .loop: 
+        cmp rcx, 0 
+        je .done
+    
+        mov dl, [rsi]
+        cmp dl, '.' 
+        jne .next 
+
+        inc rax 
+    
+    .next: 
+        inc rsi 
+        dec rcx 
+        jmp .loop 
+    
+    .done: 
+        mov [total_dots], rax 
+        ret 
+
+
+; ====================
+;   승리 조건
+; ====================
+check_win: 
+    mov rax, [total_dots]
+    cmp rax, 0 
+    jne .not_win 
+
+    mov rax, 1 
+    ret 
+
+    .not_win: 
+        xor rax, rax 
+        ret 

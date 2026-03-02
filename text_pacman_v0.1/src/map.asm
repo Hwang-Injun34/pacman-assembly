@@ -10,7 +10,9 @@
 global map_data 
 global map_width 
 global map_height 
+global map_size
 global draw_map 
+
 
 section .data 
 ; --------------------

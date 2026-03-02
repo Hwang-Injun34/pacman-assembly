@@ -26,6 +26,8 @@ extern erase_player
 extern update_player 
 extern player_x 
 extern player_y
+extern init_dot_count 
+extern check_win
 
 
 section .data 
@@ -39,6 +41,10 @@ cursor_ctl_len equ 6
 STDOUT equ 1 
 SYS_write equ 1 	; write 
 SYS_exit equ 60 	; terminate 
+
+win_msg db 10, "You Win!", 10 
+win_msg_len db $ - win_msg
+
 
 section .text 
 main: 
@@ -61,6 +67,11 @@ main:
     mov rsi, clear_screen
     mov rdx, clear_len
     syscall 
+
+    ; --------------------
+    ;   Total dot 세기
+    ; --------------------
+    call init_dot_count
 
     ; --------------------
     ;   맵은 1번만 출력
@@ -96,13 +107,16 @@ game_loop:
 
     ; 플레이어 지우기 
     call erase_player 
-
     ; 이동 처리
     call update_player 
 
+    ; 승리 조건 검사
+    call check_win
+    test rax, rax 
+    jnz win_program
+
     ; 다시 그리기
     call draw_player
-
     ; 점수 갱신
     call draw_score
     
@@ -129,3 +143,29 @@ exit_program:
 
 
 
+; ====================
+;   게임 승리 조건
+; ====================
+win_program:
+    call disable_raw_mode
+
+    ; 화면 아래에 WIN 출력
+    mov rax, SYS_write 
+    mov rdi, STDOUT 
+    mov rsi, win_msg
+    mov rdx, win_msg_len
+    syscall 
+
+    ;  커서 다시 보이기
+    mov rax, SYS_write 
+    mov rdi, STDOUT 
+    mov rsi, show_cursor 
+    mov rdx, cursor_ctl_len
+    syscall 
+
+    mov rax, SYS_exit 
+    xor rdi, rdi 
+    syscall 
+
+
+    
