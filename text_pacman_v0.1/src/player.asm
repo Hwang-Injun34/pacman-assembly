@@ -8,6 +8,7 @@
 ; 작성자    :   남궁명수
 ; ============================
 global draw_player 
+global draw_score
 global erase_player 
 global update_player 
 global player_x 
@@ -32,10 +33,64 @@ STDOUT equ 1
 SYS_write equ 1 	; write 
 CURSOR_LEN equ 6    ; ESC[y;xH
 
+score_label db "SCORE: " 
+score_label_len equ $ - score_label
+
 section .bss
 cursor_buf resb 16
+score_buf resb 32
 
 section .text 
+
+; ====================
+;   draw_score : 화면에 점수 표시
+; ====================
+draw_score: 
+    ; 맵의 맨 아래로 커서 이동 
+    ; y = map_height + 1
+    mov rax, [map_height]
+    mov rdi, rax 
+    mov rsi, 0 
+    call move_cursor 
+
+    ; "SCORE: " 출력
+    mov rax, SYS_write 
+    mov rdi, STDOUT 
+    mov rsi, score_label 
+    mov rdx, score_label_len
+    syscall 
+
+    ; 숫자 변환 최대 5자리
+    mov rax, [score]
+    mov rbx, 10
+    lea rdi, [score_buf]
+    mov byte [rdi], 0 
+    dec rdi 
+
+    .convert:
+        xor rdx, rdx 
+        div rbx 
+        add dl, '0' 
+        mov [rdi], dl 
+        dec rdi 
+        test rax, rax 
+        jnz .convert 
+
+
+    inc rdi 
+    ; 출력
+    mov rax, SYS_write 
+    mov rsi, rdi
+    mov rdx, score_buf + 30 
+    sub rdx, rsi 
+    mov rdi, STDOUT 
+    syscall
+
+    ret      
+
+
+
+
 
 ; ====================
 ;   move_cursor(y, x) : ANSI Escape Code를 활용한 커서 이동
@@ -170,7 +225,7 @@ try_right:
     jmp check_wall
 
 ; ====================
-;   check_wall : 벽 검사
+;   check_wall : 벽 검사 & 점 먹기
 ; ====================
 check_wall:
     push rax 

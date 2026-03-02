@@ -15,6 +15,7 @@
 global main 
 
 extern draw_map
+extern draw_score
 extern read_input 
 extern input_char
 extern enable_raw_mode 
@@ -71,6 +72,11 @@ main:
     ; --------------------
     call draw_player
 
+    ; --------------------
+    ;   score 최초 출력
+    ; --------------------
+    call draw_score
+
 ; ====================
 ;   게임 루프
 ; ====================
@@ -96,6 +102,9 @@ game_loop:
 
     ; 다시 그리기
     call draw_player
+
+    ; 점수 갱신
+    call draw_score
     
     jmp game_loop 
 
