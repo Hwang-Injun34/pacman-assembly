@@ -41,6 +41,7 @@ cursor_ctl_len equ 6
 STDOUT equ 1 
 SYS_write equ 1 	; write 
 SYS_exit equ 60 	; terminate 
+SYS_nanosleep equ 35
 
 win_msg db 10, "You Win!", 10 
 win_msg_len db $ - win_msg
@@ -119,6 +120,13 @@ game_loop:
     call draw_player
     ; 점수 갱신
     call draw_score
+
+    ; 프레임 제한
+    mov rax, SYS_nanosleep
+    mov rdi, frame_delay 
+    xor rsi, rsi 
+    syscall
+
     
     jmp game_loop 
 
@@ -147,7 +155,7 @@ exit_program:
 ;   게임 승리 조건
 ; ====================
 win_program:
-    call disable_raw_mode
+    call disable_raw_mode    ; 터미널 복구
 
     ; 화면 아래에 WIN 출력
     mov rax, SYS_write 
@@ -168,4 +176,9 @@ win_program:
     syscall 
 
 
-    
+; ====================
+;   frame delay(100ms)
+; ====================
+frame_delay:
+    dq 0        ; tv_sec 
+    dq 100000000    ; tv_nsec(100ms)
