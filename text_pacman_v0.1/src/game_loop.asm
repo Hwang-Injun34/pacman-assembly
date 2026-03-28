@@ -29,6 +29,12 @@ extern player_y
 extern init_dot_count 
 extern check_win
 
+extern erase_ghost
+extern draw_ghost
+extern move_ghost
+extern check_ghost_collision
+extern check_ghost_cross
+
 
 section .data 
 clear_screen db 27, '[', '2', 'J', 27, '[', 'H'
@@ -44,7 +50,17 @@ SYS_exit equ 60 	; terminate
 SYS_nanosleep equ 35
 
 win_msg db 10, "You Win!", 10 
-win_msg_len db $ - win_msg
+win_msg_len equ $ - win_msg
+
+game_over_msg db 10, "Game Over!", 10
+game_over_len equ $ - game_over_msg
+
+; --------------------
+; frame delay (100ms)
+; --------------------
+frame_delay:
+    dq 0        ; tv_sec 
+    dq 100000000    ; tv_nsec(100ms)
 
 
 section .text 
@@ -70,24 +86,13 @@ main:
     syscall 
 
     ; --------------------
-    ;   Total dot 세기
+    ;   초기화
     ; --------------------
-    call init_dot_count
-
-    ; --------------------
-    ;   맵은 1번만 출력
-    ; --------------------
-    call draw_map
-
-    ; --------------------
-    ;   플레이어 최초 출력
-    ; --------------------
-    call draw_player
-
-    ; --------------------
-    ;   score 최초 출력
-    ; --------------------
-    call draw_score
+    call init_dot_count ; Total dot 세기
+    call draw_map ; 맵은 1번만 출력
+    call draw_player ; 플레이어 최초 출력
+    call draw_ghost ; ghost 최초 출력
+    call draw_score ; score 최초 출력
 
 ; ====================
 ;   게임 루프
@@ -98,30 +103,62 @@ game_loop:
     ;   입력 읽기
     ; --------------------
     call read_input 
-
     mov al, byte [input_char] 
     or al, 0x20     ; 대문자 -> 소문자 변환
 
-    ; q 누르면 종료
-    cmp al, 'q' 
-    je exit_program
+    cmp al, 'q' ; q 누르면 종료
+    je exit_program ; 종료
 
-    ; 플레이어 지우기 
-    call erase_player 
-    ; 이동 처리
+    ; --------------------
+    ;   이전 상태 지우기
+    ; --------------------
+    call erase_player     ; 플레이어 지우기 
+    call erase_ghost        ; 고스트 지우기
+
+    ; --------------------
+    ;   이동 처리 + 충돌 검사
+    ; --------------------
     call update_player 
+    
+    call check_ghost_collision 
+    test rax, rax 
+    jnz game_over
 
-    ; 승리 조건 검사
+    call check_ghost_cross
+    test rax, rax 
+    jnz game_over
+
+    ; --------------------
+    ;   이동 처리 + 충돌 검사
+    ; --------------------
+    call move_ghost
+    
+    call check_ghost_collision 
+    test rax, rax 
+    jnz game_over
+
+    call check_ghost_cross
+    test rax, rax 
+    jnz game_over
+    
+    ; --------------------
+    ;   승리 검사
+    ; --------------------
     call check_win
     test rax, rax 
     jnz win_program
 
-    ; 다시 그리기
+    ; --------------------
+    ;   다시 그리기
+    ; --------------------
     call draw_player
-    ; 점수 갱신
-    call draw_score
+    call draw_ghost
+    
+    call draw_score     ; 점수 갱신
 
-    ; 프레임 제한
+    ; --------------------
+    ;   프레임 제한
+    ; --------------------
     mov rax, SYS_nanosleep
     mov rdi, frame_delay 
     xor rsi, rsi 
@@ -129,16 +166,20 @@ game_loop:
 
     
     jmp game_loop 
-
 ; ====================
-;   정상 종료
-; ====================   
-exit_program:
+;   게임 오버
+; ====================
+game_over:
     call disable_raw_mode
 
-    ; --------------------
-    ;  커서 다시 보이기
-    ; --------------------
+    ; 메시지 출력
+    mov rax, SYS_write 
+    mov rdi, STDOUT 
+    mov rsi, game_over_msg
+    mov rdx, game_over_len
+    syscall 
+
+    ; 커서 복구
     mov rax, SYS_write 
     mov rdi, STDOUT 
     mov rsi, show_cursor 
@@ -148,8 +189,6 @@ exit_program:
     mov rax, SYS_exit 
     xor rdi, rdi 
     syscall 
-
-
 
 ; ====================
 ;   게임 승리 조건
@@ -177,8 +216,20 @@ win_program:
 
 
 ; ====================
-;   frame delay(100ms)
-; ====================
-frame_delay:
-    dq 0        ; tv_sec 
-    dq 100000000    ; tv_nsec(100ms)
+;   정상 종료
+; ====================   
+exit_program:
+    call disable_raw_mode
+    
+    ; --------------------
+    ;  커서 다시 보이기
+    ; --------------------
+    mov rax, SYS_write 
+    mov rdi, STDOUT 
+    mov rsi, show_cursor 
+    mov rdx, cursor_ctl_len
+    syscall 
+
+    mov rax, SYS_exit 
+    xor rdi, rdi 
+    syscall 

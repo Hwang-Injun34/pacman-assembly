@@ -17,6 +17,7 @@ global score
 global total_dots
 global check_win 
 global init_dot_count
+global move_cursor
 
 extern input_char 
 extern map_data 
@@ -74,26 +75,29 @@ draw_score:
     ; 숫자 변환 최대 5자리
     mov rax, [score]
     mov rbx, 10
-    lea rdi, [score_buf]
+    lea rdi, [score_buf + 31]
     mov byte [rdi], 0 
     dec rdi 
 
-    .convert:
-        xor rdx, rdx 
-        div rbx 
-        add dl, '0' 
-        mov [rdi], dl 
-        dec rdi 
-        test rax, rax 
-        jnz .convert 
+.convert:
+    xor rdx, rdx 
+    div rbx 
+    add dl, '0' 
+    mov [rdi], dl 
+    dec rdi 
+    test rax, rax 
+    jnz .convert 
 
 
-    inc rdi 
+    inc rdi     ; 실제 시작 위치
+    ; 길이 계산
+    mov rax, score_buf + 31
+    sub rax, rdi 
+    mov rdx, rax
+    
     ; 출력
     mov rax, SYS_write 
     mov rsi, rdi
-    mov rdx, score_buf + 30 
-    sub rdx, rsi 
     mov rdi, STDOUT 
     syscall
 
@@ -113,23 +117,26 @@ move_cursor:
     mov byte [cursor_buf+1], '[' 
     
     ; y 반환
-    inc dil
-    add dil, '0' 
-    mov [cursor_buf+2], dil 
+    mov al, dil
+    inc al
+    add al, '0'
+    mov [cursor_buf+2], al
 
     mov byte [cursor_buf+3], ';'
 
     ;x 반환
-    inc sil
-    add sil, '0' 
-    mov [cursor_buf+4], sil 
+    mov al, sil
+    inc al
+    add al, '0'
+    mov [cursor_buf+4], al
 
     mov byte [cursor_buf+5], 'H' 
 
-    mov rax, SYS_write 
-    mov rdi, STDOUT 
-    lea rsi, [cursor_buf] 
-    mov rdx, CURSOR_LEN
+    ; 출력
+    mov rax, SYS_write
+    mov rdi, STDOUT
+    lea rsi, [cursor_buf]
+    mov rdx, 6
     syscall 
     ret 
 
