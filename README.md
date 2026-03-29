@@ -31,8 +31,8 @@
         - syscall 기반 입출력 처리
         - 단일 실행 파일 구조
 
-👉 **PDF 문서**  
-📄 [Pac-man Assembly Project 보고서](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/Pac-man%20Assembly%20Project%20%E1%84%87%E1%85%A9%E1%84%80%E1%85%A9%E1%84%89%E1%85%A5_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf)
+📄 **PDF 문서**  
+- [Pac-man Assembly Project 보고서](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/Pac-man%20Assembly%20Project%20%E1%84%87%E1%85%A9%E1%84%80%E1%85%A9%E1%84%89%E1%85%A5_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf)
 
 ---
 
@@ -47,12 +47,12 @@
 - 충돌 및 게임 종료 처리
 - ANSI Escape Sequence 기반 화면 제어
 
-👉 **PDF 문서**  
-📄 [ASNI Escape Code](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/ASNI%20Escape%20Code_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf)
+📄 **PDF 문서**  
+- [ASNI Escape Code](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/ASNI%20Escape%20Code_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf)
 
 ---
 
 ## 🗂 정리 방식
 
-- 📄 **이론 & 개념, 보고서**: PDF 파일
-- 💻 **실습 & 코드**: GitHub
+- 📄 **이론 & 개념, 보고서**: PDF
+- 🔗 **실습 & 코드**: GitHub
