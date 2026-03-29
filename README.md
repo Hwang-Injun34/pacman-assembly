@@ -32,7 +32,7 @@
         - 단일 실행 파일 구조
 
 👉 **PDF 문서**  
-📄 Pac-man Assembly Project 보고서
+📄 [Pac-man Assembly Project 보고](./Pac-man Assembly Project 보고서_남궁명수.pdf)ᅥ
 
 ---
 
