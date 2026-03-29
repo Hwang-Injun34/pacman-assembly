@@ -1,4 +1,4 @@
-# 📘 pacman-assembly-project
+# 📁 pacman-assembly-project
 
 > x86-64 NASM 어셈블리 기반 Terminal Text Pacman 게임 구현 프로젝트
 > 
@@ -6,7 +6,7 @@
 
 ---
 
-## 프로젝트 설명
+## 📌 프로젝트 설명
 
 - 주제: x86-64 Assembly 기반 Text Pacman 게임 구현
 - 목표:
@@ -32,11 +32,11 @@
         - 단일 실행 파일 구조
 
 👉 **PDF 문서**  
-📄 [Pac-man Assembly Project 보고]([./Pac-man Assembly Project 보고서_남궁명수.pdf](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/Pac-man%20Assembly%20Project%20%E1%84%87%E1%85%A9%E1%84%80%E1%85%A9%E1%84%89%E1%85%A5_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf))
+📄 [Pac-man Assembly Project 보고서](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/Pac-man%20Assembly%20Project%20%E1%84%87%E1%85%A9%E1%84%80%E1%85%A9%E1%84%89%E1%85%A5_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf)
 
 ---
 
-## 주요 기능
+## 🧩 주요 기능
 
 - 텍스트 기반 맵 출력
 - 실시간 키 입력 처리 (Raw Mode)
@@ -48,11 +48,11 @@
 - ANSI Escape Sequence 기반 화면 제어
 
 👉 **PDF 문서**  
-📄 ASNI Escape Code
+📄 [ASNI Escape Code](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/ASNI%20Escape%20Code_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf)
 
 ---
 
-## 정리 방식
+## 🗂 정리 방식
 
 - 📄 **이론 & 개념**: PDF 파일
 - 💻 **실습 & 코드**: GitHub
