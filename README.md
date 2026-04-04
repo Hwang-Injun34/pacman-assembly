@@ -34,6 +34,11 @@ Linux 시스템 콜을 기반으로 입출력, 메모리 제어, 실행 흐름�
 
 ---
 
+## 🕹️ 실행 화면
+![pacman](https://github.com/user-attachments/assets/264901b9-7368-471f-8651-625d7324ec93)
+
+---
+
 ## 🎯 프로젝트 목표
 - Assembly 기반 실제 프로그램 구현 경험 확보
 - Linux syscall 기반 입출력 구조 이해
@@ -74,12 +79,6 @@ Linux 시스템 콜을 기반으로 입출력, 메모리 제어, 실행 흐름�
 
 📄 **PDF 문서**  
 - [ANSI Escape Code](https://github.com/Hwang-Injun34/pacman-assembly/blob/main/ASNI%20Escape%20Code_%E1%84%82%E1%85%A1%E1%86%B7%E1%84%80%E1%85%AE%E1%86%BC%E1%84%86%E1%85%A7%E1%86%BC%E1%84%89%E1%85%AE.pdf)
-
----
-
-## 🕹️ 실행 화면
-- 추가 예정
-
 
 ---
 
